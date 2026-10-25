@@ -216,3 +216,16 @@ if(matchMedia("(hover:hover) and (pointer:fine)").matches&&!matchMedia("(prefers
 const tilt=(el,max)=>{el.addEventListener("pointermove",e=>{const b=el.getBoundingClientRect();el.style.setProperty("--ry",((e.clientX-b.left)/b.width-.5)*max+"deg");el.style.setProperty("--rx",(.5-(e.clientY-b.top)/b.height)*max+"deg")});
 el.addEventListener("pointerleave",()=>{el.style.removeProperty("--rx");el.style.removeProperty("--ry")})};
 tilt($("art"),12);document.querySelectorAll(".grid .card").forEach(c=>tilt(c,7))}
+
+
+/* image protection: block right-click save/copy, drag-out, long-press menu and common save shortcuts on images */
+(function(){
+const inImg=t=>t&&t.closest&&(t.tagName==="IMG"||t.closest("img,.art,.tile,.photo"));
+document.addEventListener("contextmenu",e=>{if(inImg(e.target))e.preventDefault()},true);
+document.addEventListener("dragstart",e=>{if(inImg(e.target)||(e.target&&e.target.tagName==="IMG"))e.preventDefault()},true);
+document.addEventListener("copy",e=>{const s=getSelection();if(s&&s.rangeCount&&s.getRangeAt(0).cloneContents().querySelector("img"))e.preventDefault()},true);
+document.addEventListener("selectstart",e=>{if(inImg(e.target))e.preventDefault()},true);
+document.addEventListener("keydown",e=>{const k=(e.key||"").toLowerCase();if((e.ctrlKey||e.metaKey)&&(k==="s"||k==="u"||(e.shiftKey&&k==="i")))e.preventDefault()});
+document.querySelectorAll("img").forEach(i=>i.setAttribute("draggable","false"));
+new MutationObserver(m=>m.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType===1){if(n.tagName==="IMG")n.setAttribute("draggable","false");n.querySelectorAll&&n.querySelectorAll("img").forEach(i=>i.setAttribute("draggable","false"))}}))).observe(document.body,{childList:true,subtree:true});
+})();
